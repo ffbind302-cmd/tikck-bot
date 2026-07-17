@@ -1,199 +1,1047 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>{{SERVER_NAME}} | Transcript</title>
+<title>{{SERVER_NAME}} | BYPASS Premium Transcript</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
 
+:root{
+
+--bg:#07080d;
+--bg2:#11131b;
+
+--card:#141722;
+--card2:#1b1f2d;
+
+--purple:#8b5cf6;
+--purple2:#6d28d9;
+
+--text:#cbd5e1;
+--border:rgba(255,255,255,.06);
+
+}
+
 *{
+
 margin:0;
 padding:0;
+
 box-sizing:border-box;
-font-family:Inter,sans-serif;
+
+font-family:'Inter',sans-serif;
+
+}
+
+html{
+
+scroll-behavior:smooth;
+
 }
 
 body{
-background:#1e1f22;
-color:#dcddde;
+
+background:
+
+radial-gradient(circle at top right,#7c3aed22,transparent 35%),
+
+radial-gradient(circle at bottom left,#2563eb22,transparent 35%),
+
+var(--bg);
+
+color:white;
+
+overflow-x:hidden;
+
+min-height:100vh;
+
 }
 
-.header{
-background:#313338;
-padding:30px;
+body::-webkit-scrollbar{
+
+width:8px;
+
+}
+
+body::-webkit-scrollbar-thumb{
+
+background:var(--purple);
+
+border-radius:20px;
+
+}
+
+::selection{
+
+background:var(--purple);
+
+color:white;
+
+}
+/* ===========================
+   HERO SECTION
+=========================== */
+
+.hero{
+
+width:95%;
+
+max-width:1450px;
+
+margin:35px auto;
+
+padding:55px;
+
 display:flex;
+
+justify-content:space-between;
+
 align-items:center;
-gap:20px;
-border-bottom:2px solid #5865F2;
+
+background:linear-gradient(145deg,#121522,#1a1d2d);
+
+border:1px solid var(--border);
+
+border-radius:30px;
+
+overflow:hidden;
+
+position:relative;
+
+box-shadow:
+0 20px 60px rgba(0,0,0,.45),
+0 0 60px rgba(139,92,246,.10);
+
+}
+
+.hero::before{
+
+content:"";
+
+position:absolute;
+
+right:-180px;
+
+top:-180px;
+
+width:550px;
+
+height:550px;
+
+background:radial-gradient(circle,var(--purple),transparent 70%);
+
+opacity:.18;
+
+filter:blur(70px);
+
+}
+
+.heroLeft{
+
+display:flex;
+
+align-items:center;
+
+gap:25px;
+
+z-index:2;
+
+}
+
+.serverBox{
+
+width:100px;
+
+height:100px;
+
+padding:5px;
+
+border-radius:28px;
+
+background:linear-gradient(135deg,var(--purple),var(--purple2));
+
+box-shadow:0 0 35px rgba(139,92,246,.45);
+
 }
 
 .serverIcon{
-width:80px;
-height:80px;
-border-radius:50%;
-border:4px solid #5865F2;
+
+width:100%;
+
+height:100%;
+
+border-radius:24px;
+
+object-fit:cover;
+
 }
 
-.serverInfo h1{
-font-size:32px;
-color:white;
+.serverTitle{
+
+font-size:42px;
+
+font-weight:800;
+
+color:#fff;
+
 }
 
-.serverInfo p{
-color:#949BA4;
+.serverSubtitle{
+
 margin-top:8px;
+
+font-size:17px;
+
+color:var(--text);
+
 }
 
-.ticketCard{
-margin:30px;
-background:#2b2d31;
-border-radius:15px;
-padding:25px;
-box-shadow:0 0 30px rgba(88,101,242,.25);
-}
+.tag{
 
-.ticketGrid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-top:20px;
-}
+display:inline-block;
 
-.card{
-background:#1e1f22;
-padding:18px;
-border-radius:10px;
-}
+padding:8px 18px;
 
-.cardTitle{
-color:#949BA4;
+margin-bottom:15px;
+
+border-radius:999px;
+
+background:rgba(139,92,246,.15);
+
+border:1px solid rgba(139,92,246,.35);
+
+color:#d8b4fe;
+
 font-size:13px;
-margin-bottom:6px;
+
+font-weight:700;
+
+letter-spacing:1px;
+
+}
+
+.ticketWatermark{
+
+font-size:72px;
+
+font-weight:900;
+
+opacity:.06;
+
+color:#fff;
+
+user-select:none;
+
+z-index:2;
+
+}
+/* =====================================
+   PREMIUM TICKET CARDS
+===================================== */
+
+.ticketSection{
+
+width:95%;
+
+max-width:1450px;
+
+margin:35px auto;
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:22px;
+
+}
+
+.infoCard{
+
+position:relative;
+
+overflow:hidden;
+
+padding:28px;
+
+border-radius:24px;
+
+background:linear-gradient(145deg,#141722,#1b2030);
+
+border:1px solid rgba(255,255,255,.05);
+
+transition:.35s;
+
+box-shadow:
+0 15px 40px rgba(0,0,0,.35);
+
+}
+
+.infoCard:hover{
+
+transform:translateY(-8px);
+
+box-shadow:
+0 25px 60px rgba(0,0,0,.45),
+0 0 30px rgba(139,92,246,.15);
+
+}
+
+.infoCard::before{
+
+content:"";
+
+position:absolute;
+
+width:180px;
+
+height:180px;
+
+right:-70px;
+
+top:-70px;
+
+background:radial-gradient(circle,#8b5cf622,transparent 70%);
+
+}
+
+.cardLabel{
+
+font-size:12px;
+
+text-transform:uppercase;
+
+letter-spacing:2px;
+
+color:#94a3b8;
+
+margin-bottom:15px;
+
 }
 
 .cardValue{
-font-size:18px;
-font-weight:bold;
+
+font-size:24px;
+
+font-weight:700;
+
+color:white;
+
+word-break:break-word;
+
 }
 
-.chat{
-margin:30px;
+.status{
+
+display:inline-block;
+
+margin-top:18px;
+
+padding:8px 18px;
+
+border-radius:999px;
+
+background:linear-gradient(135deg,#22c55e,#16a34a);
+
+font-size:13px;
+
+font-weight:700;
+
+color:white;
+
 }
 
-.message{
+.sectionTitle{
+
+width:95%;
+
+max-width:1450px;
+
+margin:45px auto 20px;
+
+font-size:34px;
+
+font-weight:800;
+
+color:white;
+
+letter-spacing:-1px;
+
+}
+/* =====================================
+   CONVERSATION MESSAGE SYSTEM
+===================================== */
+
+.conversation{
+
+width:95%;
+
+max-width:1450px;
+
+margin:0 auto 50px;
+
 display:flex;
-gap:15px;
-margin-bottom:25px;
+
+flex-direction:column;
+
+gap:20px;
+
 }
+
+
+.messageBox{
+
+display:flex;
+
+gap:18px;
+
+align-items:flex-start;
+
+padding:25px;
+
+background:linear-gradient(145deg,#121622,#191e2c);
+
+border:1px solid rgba(255,255,255,.06);
+
+border-radius:24px;
+
+transition:.35s;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+.messageBox:hover{
+
+transform:translateX(8px);
+
+border-color:rgba(139,92,246,.35);
+
+box-shadow:
+
+0 15px 40px rgba(0,0,0,.35),
+
+0 0 30px rgba(139,92,246,.12);
+
+}
+
+
+.messageBox::after{
+
+content:"";
+
+position:absolute;
+
+width:250px;
+
+height:250px;
+
+right:-120px;
+
+bottom:-120px;
+
+background:radial-gradient(circle,#8b5cf622,transparent 70%);
+
+}
+
 
 .avatar{
-width:48px;
-height:48px;
+
+width:55px;
+
+height:55px;
+
 border-radius:50%;
-}
 
-.content{
-flex:1;
-}
+background:linear-gradient(135deg,var(--purple),#2563eb);
 
-.top{
 display:flex;
+
 align-items:center;
-gap:10px;
-margin-bottom:6px;
+
+justify-content:center;
+
+font-size:22px;
+
+font-weight:800;
+
+color:white;
+
+flex-shrink:0;
+
+box-shadow:
+
+0 0 25px rgba(139,92,246,.45);
+
 }
+
+
+.messageContent{
+
+flex:1;
+
+z-index:2;
+
+}
+
+
+.messageHeader{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:10px;
+
+}
+
 
 .username{
-font-weight:bold;
+
+font-size:18px;
+
+font-weight:700;
+
 color:white;
+
 }
+
 
 .time{
-font-size:12px;
-color:#949BA4;
+
+font-size:13px;
+
+color:#94a3b8;
+
 }
 
-.bubble{
-background:#2b2d31;
-padding:15px;
-border-radius:12px;
+
+.messageText{
+
+font-size:15px;
+
 line-height:1.7;
-word-break:break-word;
+
+color:#cbd5e1;
+
+background:rgba(255,255,255,.03);
+
+padding:15px 18px;
+
+border-radius:16px;
+
+border:1px solid rgba(255,255,255,.04);
+
 }
 
-.footer{
-margin-top:50px;
-padding:25px;
-background:#313338;
-text-align:center;
-color:#949BA4;
+
+/* =====================================
+   ATTACHMENT CARD
+===================================== */
+
+
+.attachment{
+
+margin-top:15px;
+
+padding:15px;
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+background:#0f1320;
+
+border-radius:18px;
+
+border:1px solid rgba(255,255,255,.06);
+
 }
 
+
+.fileIcon{
+
+width:45px;
+
+height:45px;
+
+border-radius:14px;
+
+background:linear-gradient(135deg,var(--purple),var(--purple2));
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:20px;
+
+}
+
+
+.fileName{
+
+font-weight:600;
+
+color:white;
+
+}
+
+
+.fileSize{
+
+font-size:13px;
+
+color:#94a3b8;
+
+margin-top:3px;
+
+}
+
+
+/* =====================================
+   RESPONSIVE DESIGN
+===================================== */
+
+
+@media(max-width:1000px){
+
+.ticketSection{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+.hero{
+
+padding:35px;
+
+}
+
+
+.serverTitle{
+
+font-size:32px;
+
+}
+
+
+.ticketWatermark{
+
+display:none;
+
+}
+
+}
+
+
+
+@media(max-width:600px){
+
+
+.ticketSection{
+
+grid-template-columns:1fr;
+
+}
+
+
+.hero{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+
+.serverTitle{
+
+font-size:28px;
+
+}
+
+
+.messageBox{
+
+padding:18px;
+
+}
+
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="header">
 
-<img class="serverIcon" src="{{SERVER_ICON}}">
+<!-- ===========================
+     HERO SECTION
+=========================== -->
 
-<div class="serverInfo">
 
-<h1>{{SERVER_NAME}}</h1>
+<div class="hero">
 
-<p>Discord Ticket Transcript</p>
 
+<div class="heroLeft">
+
+
+<div class="serverBox">
+
+<img class="serverIcon" src="{{SERVER_ICON}}" alt="Server">
+
+</div>
+
+
+<div>
+
+
+<div class="tag">
+TICKET TRANSCRIPT
+</div>
+
+
+<div class="serverTitle">
+
+{{SERVER_NAME}}
+
+</div>
+
+
+<div class="serverSubtitle">
+
+Premium Discord Support Transcript
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="ticketWatermark">
+
+#{{TICKET_ID}}
+
+</div>
+
+
+</div>
+<!-- ===========================
+     TICKET INFORMATION CARDS
+=========================== -->
+
+
+<div class="ticketSection">
+
+
+<div class="infoCard">
+
+<div class="cardLabel">
+Ticket
+</div>
+
+<div class="cardValue">
+#{{TICKET_ID}}
 </div>
 
 </div>
 
-<div class="ticketCard">
 
-<h2>Ticket Information</h2>
 
-<div class="ticketGrid">
+<div class="infoCard">
 
-<div class="card">
-<div class="cardTitle">Ticket</div>
-<div class="cardValue">{{CHANNEL}}</div>
+<div class="cardLabel">
+Created By
 </div>
 
-<div class="card">
-<div class="cardTitle">Created By</div>
-<div class="cardValue">{{USER}}</div>
-</div>
-
-<div class="card">
-<div class="cardTitle">Opened</div>
-<div class="cardValue">{{OPEN_TIME}}</div>
-</div>
-
-<div class="card">
-<div class="cardTitle">Closed</div>
-<div class="cardValue">{{CLOSE_TIME}}</div>
+<div class="cardValue">
+{{USER}}
 </div>
 
 </div>
 
+
+
+<div class="infoCard">
+
+<div class="cardLabel">
+Opened
 </div>
 
-<div class="chat">
-
-{{MESSAGES}}
+<div class="cardValue">
+{{OPEN_TIME}}
+</div>
 
 </div>
 
-<div class="footer">
 
-Generated by BYPASS Ticket System
+
+<div class="infoCard">
+
+<div class="cardLabel">
+Closed
+</div>
+
+<div class="cardValue">
+{{CLOSE_TIME}}
+</div>
+
+
+<span class="status">
+Closed
+</span>
+
 
 </div>
+
+
+</div>
+
+
+
+<h2 class="sectionTitle">
+Conversation
+</h2>
+
+
+
+<div class="conversation">
+<!-- ===========================
+     MESSAGE 1
+=========================== -->
+
+
+<div class="messageBox">
+
+
+<div class="avatar">
+
+{{USER_FIRST}}
+
+</div>
+
+
+<div class="messageContent">
+
+
+<div class="messageHeader">
+
+
+<div class="username">
+
+{{USER}}
+
+</div>
+
+
+<div class="time">
+
+{{MESSAGE_TIME}}
+
+</div>
+
+
+</div>
+
+
+<div class="messageText">
+
+{{MESSAGE}}
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ===========================
+     MESSAGE 2
+=========================== -->
+
+
+<div class="messageBox">
+
+
+<div class="avatar">
+
+BOT
+
+</div>
+
+
+<div class="messageContent">
+
+
+<div class="messageHeader">
+
+
+<div class="username">
+
+Support Bot
+
+</div>
+
+
+<div class="time">
+
+{{BOT_TIME}}
+
+</div>
+
+
+</div>
+
+
+
+<div class="messageText">
+
+{{BOT_MESSAGE}}
+
+</div>
+
+
+
+</div>
+
+
+</div>
+<!-- ===========================
+     ATTACHMENT SECTION
+=========================== -->
+
+
+<div class="messageBox">
+
+
+<div class="avatar">
+
+📎
+
+</div>
+
+
+<div class="messageContent">
+
+
+<div class="messageHeader">
+
+
+<div class="username">
+
+Attachment
+
+</div>
+
+
+<div class="time">
+
+{{ATTACH_TIME}}
+
+</div>
+
+
+</div>
+
+
+
+<div class="attachment">
+
+
+<div class="fileIcon">
+
+📄
+
+</div>
+
+
+
+<div>
+
+
+<div class="fileName">
+
+{{FILE_NAME}}
+
+</div>
+
+
+<div class="fileSize">
+
+{{FILE_SIZE}}
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+<!-- ===========================
+     FOOTER
+=========================== -->
+
+
+<footer style="
+width:95%;
+max-width:1450px;
+margin:40px auto;
+padding:25px;
+text-align:center;
+color:#94a3b8;
+font-size:14px;
+">
+
+
+Generated by {{SERVER_NAME}} • Premium Transcript System
+
+
+</footer>
+
+
 
 </body>
+
 </html>
