@@ -48,27 +48,44 @@ module.exports = {
             return interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
-        if (button == 'create_ticket') {
-            const channel = await guild.channels.create({
-                name: `ticket-${user.username}`,
-                type: ChannelType.GuildText,
-                parent: openCategory,
-                topic: `${user.username} ${user.id}`,
-                permissionOverwrites: [
-                    {
-                        id: guild.id,
-                        deny: PermissionFlagsBits.ViewChannel
-                    },
-                    {
-                        id: user.id,
-                        allow: PermissionFlagsBits.ViewChannel
-                    },
-                    {
-                        id: staffRole,
-                        allow: PermissionFlagsBits.ViewChannel
-                    }
-                ]
-            });
+       if (button == 'create_ticket') {
+
+    const existingTicket = guild.channels.cache.find(
+        ch =>
+            ch.parentId === openCategory &&
+            ch.topic &&
+            ch.topic.includes(user.id)
+    );
+
+    if (existingTicket) {
+
+        return interaction.reply({
+            content: `❌ You already have an open ticket: ${existingTicket}\nPlease close it before creating a new one.`,
+            ephemeral: true
+        });
+
+    }
+
+    const channel = await guild.channels.create({
+        name: `ticket-${user.username}`,
+        type: ChannelType.GuildText,
+        parent: openCategory,
+        topic: `${user.username} ${user.id}`,
+        permissionOverwrites: [
+            {
+                id: guild.id,
+                deny: PermissionFlagsBits.ViewChannel
+            },
+            {
+                id: user.id,
+                allow: PermissionFlagsBits.ViewChannel
+            },
+            {
+                id: staffRole,
+                allow: PermissionFlagsBits.ViewChannel
+            }
+        ]
+    });
             
             const ticketEmbed = new EmbedBuilder()
                 .setTitle('🎫 Support System')
