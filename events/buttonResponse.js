@@ -280,36 +280,39 @@ else if (button == "close_ticket") {
 
     const channel = interaction.channel;
 
-  const html = await buildTranscript(channel);
+    console.log("Closing ticket...");
 
-const fileName = `${channel.id}.html`;
+    const html = await buildTranscript(channel);
 
-const filePath = path.join(__dirname, "..", "transcripts", fileName);
+    const fileName = `${channel.id}.html`;
 
-fs.writeFileSync(filePath, html);
+    const filePath = path.join(__dirname, "..", "transcripts", fileName);
 
-const transcriptURL = `https://tikck-bot-production.up.railway.app/transcripts/${fileName}`;
+    fs.writeFileSync(filePath, html);
+
+    console.log("Transcript saved:", filePath);
+
+    const transcriptURL = `https://tikck-bot-production.up.railway.app/transcripts/${fileName}`;
 
     const username = channel.topic.split(' ')[0];
-const userId = channel.topic.split(' ')[1];
+    const userId = channel.topic.split(' ')[1];
 
-const ticketOwner = await client.users.fetch(userId).catch(() => null);
+    const ticketOwner = await client.users.fetch(userId).catch(() => null);
 
-if (ticketOwner) {
+    if (ticketOwner) {
 
-    const dmRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setLabel("📄 View Transcript")
-            .setStyle(ButtonStyle.Link)
-            .setURL(transcriptURL)
-    );
+        const dmRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setLabel("📄 View Transcript")
+                .setStyle(ButtonStyle.Link)
+                .setURL(transcriptURL)
+        );
 
-    await ticketOwner.send({
-        content: "✅ Your ticket has been closed.\nClick the button below to view your transcript.",
-        components: [dmRow]
-    }).catch(() => {});
-}
-
+        await ticketOwner.send({
+            content: "✅ Your ticket has been closed.\nClick the button below to view your transcript.",
+            components: [dmRow]
+        }).catch(() => {});
+    }
 const ticketEmbed = new EmbedBuilder()
     .setTitle('🎫 Support System ')
     .setDescription(`Ticket closed by <@${user.id}>.`)
