@@ -227,9 +227,24 @@ const ticketEmbed = new EmbedBuilder()
             const userid = channel.topic.split(' ')[1];
 
             const ticketEmbed = new EmbedBuilder()
-                .setTitle('🎫 Support System ')
-                .setDescription(`Hello <@${userid}>, Your ticket has been reopened.\nPlease wait for <@&${staffRole}> to respond.`)
-                .setColor('#6104b9')
+    .setTitle('🎫 BYPASS Support Center')
+    .setDescription(`
+👋 Hello <@${user.id}>
+
+Welcome to **BYPASS Support**!
+
+Please tell us the reason for creating this ticket.
+
+📌 You can use this ticket for:
+• 🛒 Product Purchase
+• 🛠️ Support Request
+• ❓ Important Questions
+
+⏳ Our staff team <@&${staffRole}> will reply as soon as possible.
+
+⚠️ Please do not spam or create unnecessary tickets.
+`)
+    .setColor('#6104b9')
                 .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
                 .setTimestamp();
 

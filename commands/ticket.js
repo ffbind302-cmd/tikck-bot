@@ -39,18 +39,29 @@ module.exports = {
 
         fs.writeFileSync(`./database/${interaction.guildId}.json`, JSON.stringify(data, null, 4));
 
-        const embed = new EmbedBuilder()
-            .setTitle('🎫 Support System')
-            .setDescription('Click the button below to create a support ticket')
-            .setColor('#6104b9')
-            .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
-            .setTimestamp();
+       const embed = new EmbedBuilder()
+    .setTitle('🎫 BYPASS Support Center')
+    .setDescription(`
+Need help or want to purchase something?
+
+Click the button below to create a support ticket.
+
+📌 Ticket reasons:
+• 🛒 Product Purchase
+• 🛠️ Support Request
+• ❓ Important Questions
+
+⚠️ Please do not create tickets for spam.
+`)
+    .setColor('#6104b9')
+    .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
+    .setTimestamp();
 
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('create_ticket')
-                    .setLabel('📩 Create Ticket')
+                    .setLabel('🎫 Create Ticket')
                     .setStyle(ButtonStyle.Primary)
             );
 
