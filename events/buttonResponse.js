@@ -12,6 +12,7 @@ const {
     TextInputStyle
 } = require('discord.js');
 const fs = require('fs');
+const path = require("path");
 const buildTranscript = require('../transcriptGenerator');
 
 module.exports = {
@@ -279,14 +280,15 @@ else if (button == "close_ticket") {
 
     const channel = interaction.channel;
 
-   const html = await buildTranscript(channel);
+  const html = await buildTranscript(channel);
 
-const transcript = new AttachmentBuilder(
-    Buffer.from(html, "utf8"),
-    {
-        name: `${channel.name}.html`
-    }
-);
+const fileName = `${channel.id}.html`;
+
+const filePath = path.join(__dirname, "..", "transcripts", fileName);
+
+fs.writeFileSync(filePath, html);
+
+const transcriptURL = `https://tikck-bot-production.up.railway.app/transcripts/${fileName}`;
 
     const username = channel.topic.split(' ')[0];
 const userId = channel.topic.split(' ')[1];
@@ -294,9 +296,17 @@ const userId = channel.topic.split(' ')[1];
 const ticketOwner = await client.users.fetch(userId).catch(() => null);
 
 if (ticketOwner) {
+
+    const dmRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setLabel("📄 View Transcript")
+            .setStyle(ButtonStyle.Link)
+            .setURL(transcriptURL)
+    );
+
     await ticketOwner.send({
-        content: '📄 Here is your ticket transcript.',
-        files: [transcript]
+        content: "✅ Your ticket has been closed.\nClick the button below to view your transcript.",
+        components: [dmRow]
     }).catch(() => {});
 }
 
