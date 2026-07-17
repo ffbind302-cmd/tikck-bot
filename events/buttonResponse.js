@@ -1,6 +1,14 @@
-const { EmbedBuilder, PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require('discord.js');
+const {
+    EmbedBuilder,
+    PermissionFlagsBits,
+    ChannelType,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    AttachmentBuilder
+} = require('discord.js');
 const fs = require('fs');
-const discordTranscripts = require('discord-html-transcripts');
+const buildTranscript = require('../transcriptGenerator');
 
 module.exports = {
     name: 'interactionCreate',
@@ -113,11 +121,14 @@ module.exports = {
 
     const channel = interaction.channel;
 
-    const transcript = await discordTranscripts.createTranscript(channel, {
-        filename: `${channel.name}.html`,
-        saveImages: true,
-        poweredBy: false
-    });
+   const html = await buildTranscript(channel);
+
+const transcript = new AttachmentBuilder(
+    Buffer.from(html, "utf8"),
+    {
+        name: `${channel.name}.html`
+    }
+);
 
     const username = channel.topic.split(' ')[0];
 const userId = channel.topic.split(' ')[1];
