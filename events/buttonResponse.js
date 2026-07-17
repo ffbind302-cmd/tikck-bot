@@ -5,7 +5,11 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    AttachmentBuilder
+    AttachmentBuilder,
+    StringSelectMenuBuilder,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle
 } = require('discord.js');
 const fs = require('fs');
 const buildTranscript = require('../transcriptGenerator');
@@ -15,16 +19,74 @@ module.exports = {
     once: false,
 
     async execute(interaction, client) {
-        if (!interaction.isButton()) return;
+       if (
+    !interaction.isButton() &&
+    !interaction.isStringSelectMenu() &&
+    !interaction.isModalSubmit()
+) return;
 
-        const button = interaction.customId;
+        let button = interaction.customId;
+        const customId = interaction.customId;
+        const value = interaction.values ? interaction.values[0] : null;
+        // =======================
+// SELECT MENU
+// =======================
+
+if (interaction.isStringSelectMenu()) {
+
+    if (interaction.customId !== "ticket_menu") return;
+
+    if (interaction.values[0] === "buy") {
+
+        const modal = new ModalBuilder()
+            .setCustomId("buy_modal")
+            .setTitle("Purchase Ticket");
+
+        const product = new TextInputBuilder()
+            .setCustomId("product")
+            .setLabel("Product Name")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const payment = new TextInputBuilder()
+            .setCustomId("payment")
+            .setLabel("Payment Method")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const duration = new TextInputBuilder()
+            .setCustomId("duration")
+            .setLabel("Duration")
+            .setPlaceholder("15 Days / 30 Days / 2 Months / Lifetime")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(product),
+            new ActionRowBuilder().addComponents(payment),
+            new ActionRowBuilder().addComponents(duration)
+        );
+
+        return interaction.showModal(modal);
+
+    }
+
+   if (interaction.values[0] === "support") {
+
+    
+    button = "create_ticket";
+
+}
+
+}
         const user = interaction.user;
         const guild = interaction.guild;
 
         const date = JSON.parse(fs.readFileSync(`./database/${guild.id}.json`));
-        const staffRole = date.role;
-        const openCategory = date.open;
-        const closeCategory = date.close;
+const staffRole = date.role;
+const supportCategory = date.support || date.open;
+const buyCategory = date.buy || date.open;
+const closeCategory = date.close;
 
         const errorEmbed = new EmbedBuilder()
             .setTitle('⚠️ Error')
@@ -33,43 +95,50 @@ module.exports = {
 
         if (!guild.roles.cache.get(staffRole)) {
             errorEmbed.setDescription('Staff role was deleted.\nBotu yeniden kurmak için lütfen `/setup` komutunu kullanın.');
-            return interaction.reply({ embeds: [embed], ephemeral: true });
+            return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
 
-        if (!guild.channels.cache.get(openCategory)) {
-            errorEmbed.setDescription('The open ticket category has been deleted.\nPlease use the `/setup` command to configure the bot again.');
+       if (
+    !guild.channels.cache.get(supportCategory) ||
+    !guild.channels.cache.get(buyCategory)
+) {
+    errorEmbed.setDescription(
+        'Support or Buy category was deleted.\nPlease use `/setup` again.'
+    );
 
-            return interaction.reply({ embeds: [embed], ephemeral: true });
-        }
+    return interaction.reply({
+        embeds: [errorEmbed],
+        ephemeral: true
+    });
+}
 
         if (!guild.channels.cache.get(closeCategory)) {
             errorEmbed.setDescription('The closed ticket category has been deleted.\nPlease use the `/setup` command to configure the bot again.');
 
-            return interaction.reply({ embeds: [embed], ephemeral: true });
+            return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
+// =======================
+// BUY MODAL SUBMIT
+// =======================
 
-       if (button == 'create_ticket') {
+if (interaction.isModalSubmit()) {
 
-    const existingTicket = guild.channels.cache.find(
-        ch =>
-            ch.parentId === openCategory &&
-            ch.topic &&
-            ch.topic.includes(user.id)
-    );
+    if (interaction.customId !== "buy_modal") return;
 
-    if (existingTicket) {
+    const product = interaction.fields.getTextInputValue("product");
+    const payment = interaction.fields.getTextInputValue("payment");
+    const duration = interaction.fields.getTextInputValue("duration");
 
-        return interaction.reply({
-            content: `❌ You already have an open ticket: ${existingTicket}\nPlease close it before creating a new one.`,
-            ephemeral: true
-        });
-
-    }
+    const purchase = {
+        product,
+        payment,
+        duration
+    };
 
     const channel = await guild.channels.create({
         name: `ticket-${user.username}`,
         type: ChannelType.GuildText,
-        parent: openCategory,
+        parent: buyCategory,
         topic: `${user.username} ${user.id}`,
         permissionOverwrites: [
             {
@@ -86,33 +155,105 @@ module.exports = {
             }
         ]
     });
-            
-            const ticketEmbed = new EmbedBuilder()
-                .setTitle('🎫 Support System')
-                .setDescription(`Hello <@${user.id}>, Please write the reason for opening this ticket.\nSoon <@&${staffRole}> will reply. Please wait.`)
-                .setColor('#6104b9')
-                .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
-                .setTimestamp();
-            
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('close_ticket')
-                        .setLabel('📩 Close Ticket')
-                        .setStyle(ButtonStyle.Danger)
-                );
 
-            await channel.send({ embeds: [ticketEmbed], components: [row] });
-            await interaction.reply({ content: `✅ Your ticket was created on: ${channel}`, ephemeral: true });
-        } else if (button == 'close_ticket') {
-            const isStaff = interaction.member.roles.cache.has(staffRole);
-            const isOwner = interaction.guild.ownerId === interaction.user.id;
+    const ticketEmbed = new EmbedBuilder()
+        .setTitle("🛒 Purchase Ticket")
+        .setDescription(`
+   👋 Hello <@${user.id}>
 
-            if (!isStaff && !isOwner) {
-                errorEmbed.setDescription('❌ Only staff members or the server owner can close tickets.');
-                return interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+**Product:** ${purchase.product}
+**Payment:** ${purchase.payment}
+**Duration:** ${purchase.duration}
+
+<@&${staffRole}> will reply shortly.
+`)
+        .setColor("#6104b9");
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId("close_ticket")
+            .setLabel("📩 Close Ticket")
+            .setStyle(ButtonStyle.Danger)
+    );
+
+    await channel.send({
+        embeds: [ticketEmbed],
+        components: [row]
+    });
+
+    return interaction.reply({
+    content: `✅ Your purchase ticket was created: ${channel}`,
+    ephemeral: true
+});
+
+} // <-- BUY MODAL yaha close hoga
+  
+
+if (button === "create_ticket") {
+
+    const channel = await guild.channels.create({
+        name: `ticket-${user.username}`,
+        type: ChannelType.GuildText,
+        parent: supportCategory,
+        topic: `${user.username} ${user.id}`,
+        permissionOverwrites: [
+            {
+                id: guild.id,
+                deny: PermissionFlagsBits.ViewChannel
+            },
+            {
+                id: user.id,
+                allow: PermissionFlagsBits.ViewChann
+            },
+            {
+                id: staffRole,
+                allow: PermissionFlagsBits.ViewChannel
             }
+        ]
+    });
 
+    const ticketEmbed = new EmbedBuilder()
+        .setTitle("🎫 Support Ticket")
+        .setDescription(`
+👋 Hello <@${user.id}>
+
+Please write the reason for opening this ticket.
+
+<@&${staffRole}> will reply shortly.
+`)
+        .setColor("#6104b9");
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId("close_ticket")
+            .setLabel("📩 Close Ticket")
+            .setStyle(ButtonStyle.Danger)
+    );
+
+    await channel.send({
+        embeds: [ticketEmbed],
+        components: [row]
+    });
+
+    return interaction.reply({
+        content: `✅ Your support ticket was created: ${channel}`,
+        ephemeral: true
+    });
+
+}
+
+else if (button == "close_ticket") {
+
+    const isStaff = interaction.member.roles.cache.has(staffRole);
+    const isOwner = interaction.guild.ownerId === interaction.user.id;
+
+    if (!isStaff && !isOwner) {
+        errorEmbed.setDescription("❌ Only staff members or the server owner can close tickets.");
+        return interaction.reply({
+            embeds: [errorEmbed],
+            ephemeral: true
+        });
+    }
             const ticketEmbed = new EmbedBuilder()
                 .setTitle('🎫 Support System')
                 .setDescription(`Hello <@${user.id}>, Are you sure you want to close this ticket?`)
@@ -256,7 +397,7 @@ Please tell us the reason for creating this ticket.
                         .setStyle(ButtonStyle.Danger)
                 );
 
-            await channel.setParent(openCategory);
+            await channel.setParent(supportCategory);
             await channel.setName(`ticket-${username}`);
             await channel.permissionOverwrites.edit(userid, {
                 SendMessages: true,

@@ -1,5 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder, PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+    SlashCommandBuilder,
+    EmbedBuilder,
+    PermissionFlagsBits,
+    ChannelType,
+    ActionRowBuilder,
+    StringSelectMenuBuilder
+} = require('discord.js');
 const fs = require('fs');
 
 module.exports = {
@@ -7,65 +13,142 @@ module.exports = {
         .setName('setup')
         .setDescription('Setup support system')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .addChannelOption(option => option.setName('channel').setDescription('Channel where support system will be created').setRequired(true))
-        .addRoleOption(option => option.setName('role').setDescription('Staff role for tickets').setRequired(true))
-        .addChannelOption(option => option.setName('open').setDescription('Category for open tickets').setRequired(true))
-        .addChannelOption(option => option.setName('close').setDescription('Category for closed tickets').setRequired(true)),
+
+        .addChannelOption(option =>
+            option
+                .setName('channel')
+                .setDescription('Channel where support system will be created')
+                .setRequired(true)
+        )
+
+        .addRoleOption(option =>
+            option
+                .setName('role')
+                .setDescription('Staff role for tickets')
+                .setRequired(true)
+        )
+
+        .addChannelOption(option =>
+            option
+                .setName('support')
+                .setDescription('Support Ticket Category')
+                .setRequired(true)
+        )
+
+        .addChannelOption(option =>
+            option
+                .setName('buy')
+                .setDescription('Buy Ticket Category')
+                .setRequired(true)
+        )
+
+        .addChannelOption(option =>
+            option
+                .setName('close')
+                .setDescription('Closed Ticket Category')
+                .setRequired(true)
+        ),
 
     async execute(interaction, client) {
+
         const channel = interaction.options.getChannel('channel');
         const role = interaction.options.getRole('role');
-        const open = interaction.options.getChannel('open');
+        const support = interaction.options.getChannel('support');
+        const buy = interaction.options.getChannel('buy');
         const close = interaction.options.getChannel('close');
 
         if (channel.type !== ChannelType.GuildText) {
-            return await interaction.reply({ content: `⚠️ \`channel\` seçeneği bir metin kanalı olmalıdır!`, ephemeral: true });
+            return interaction.reply({
+                content: "⚠️ Channel must be a text channel.",
+                ephemeral: true
+            });
         }
 
-        if (open.type !== ChannelType.GuildCategory) {
-            return await interaction.reply({ content: '⚠️ `open` seçeneği bir kategori kanalı olmalıdır!', ephemeral: true });
+        if (support.type !== ChannelType.GuildCategory) {
+            return interaction.reply({
+                content: "⚠️ Support must be a category.",
+                ephemeral: true
+            });
+        }
+
+        if (buy.type !== ChannelType.GuildCategory) {
+            return interaction.reply({
+                content: "⚠️ Buy must be a category.",
+                ephemeral: true
+            });
         }
 
         if (close.type !== ChannelType.GuildCategory) {
-            return await interaction.reply({ content: '⚠️ `Kapat` seçeneği bir kategori kanalı olmalıdır!', ephemeral: true });
+            return interaction.reply({
+                content: "⚠️ Close must be a category.",
+                ephemeral: true
+            });
         }
 
         const data = {
             channel: channel.id,
             role: role.id,
-            open: open.id,
+            support: support.id,
+            buy: buy.id,
             close: close.id
         };
 
-        fs.writeFileSync(`./database/${interaction.guildId}.json`, JSON.stringify(data, null, 4));
+        fs.writeFileSync(
+            `./database/${interaction.guildId}.json`,
+            JSON.stringify(data, null, 4)
+        );
 
        const embed = new EmbedBuilder()
-    .setTitle('🎫 BYPASS Support Center')
+    .setTitle('🎫 Purchase Support Center')
     .setDescription(`
-Need help or want to purchase something?
+Welcome to **Roman XP Cheat Store**
 
-Click the button below to create a support ticket.
+Please choose an option below.
 
-📌 Ticket reasons:
-• 🛒 Product Purchase
-• 🛠️ Support Request
-• ❓ Important Questions
+🛒 Buy Product
+Purchase any product.
 
-⚠️ Please do not create tickets for spam.
+🛠️ Support
+Need help from staff.
+
+⚠️ Do not spam tickets.
 `)
+    .setImage("https://files.catbox.moe/j772nr.png")
     .setColor('#6104b9')
-    .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
+    .setFooter({
+        text: client.user.username,
+        iconURL: client.user.avatarURL({ dynamic: true })
+    })
     .setTimestamp();
 
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('create_ticket')
-                    .setLabel('🎫 Create Ticket')
-                    .setStyle(ButtonStyle.Primary)
-            );
+const row = new ActionRowBuilder()
+    .addComponents(
+        new StringSelectMenuBuilder()
+            .setCustomId("ticket_menu")
+            .setPlaceholder("🛒 Select an option")
+            .addOptions(
+                {
+                    label: "🛒 Buy Product",
+                    description: "Open a purchase ticket",
+                    value: "buy"
+                },
+                {
+                    label: "🛠️ Support",
+                    description: "Open a support ticket",
+                    value: "support"
+                }
+            )
+    );
 
-        await channel.send({ embeds: [embed], components: [row] });
-        await interaction.reply({ content: '✅ Support system configured', ephemeral: true });
+await channel.send({
+    embeds: [embed],
+    components: [row]
+});
+
+await interaction.reply({
+    content: "✅ Support system configured successfully.",
+    ephemeral: true
+});
+
     }
-}
+};
