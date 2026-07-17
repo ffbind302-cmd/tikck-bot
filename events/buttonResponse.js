@@ -1,5 +1,6 @@
 const { EmbedBuilder, PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require('discord.js');
 const fs = require('fs');
+const discordTranscripts = require('discord-html-transcripts');
 
 module.exports = {
     name: 'interactionCreate',
@@ -106,29 +107,48 @@ module.exports = {
                         .setStyle(ButtonStyle.Danger)
                 );
                 
-            await interaction.update({ embeds: [ticketEmbed], components: [row] });
-        } else if (button == 'confirm_close_ticket') {
-            const channel = interaction.channel;
-            const username = channel.topic.split(' ')[0];
+        await interaction.update({ embeds: [ticketEmbed], components: [row] });
 
-            const ticketEmbed = new EmbedBuilder()
-                .setTitle('🎫 Support System ')
-                .setDescription(`Ticket closed by <@${user.id}>.`)
-                .setColor('#e00000')
-                .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
-                .setTimestamp();
+} else if (button == 'confirm_close_ticket') {
 
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('delete_ticket')
-                        .setLabel('🗑️ Delete')
-                        .setStyle(ButtonStyle.Danger),
-                    new ButtonBuilder()
-                        .setCustomId('reopen_ticket')
-                        .setLabel('🔓 Back')
-                        .setStyle(ButtonStyle.Success),
-                );
+    const channel = interaction.channel;
+
+    const transcript = await discordTranscripts.createTranscript(channel, {
+        filename: `${channel.name}.html`,
+        saveImages: true,
+        poweredBy: false
+    });
+
+    const username = channel.topic.split(' ')[0];
+const userId = channel.topic.split(' ')[1];
+
+const ticketOwner = await client.users.fetch(userId).catch(() => null);
+
+if (ticketOwner) {
+    await ticketOwner.send({
+        content: '📄 Here is your ticket transcript.',
+        files: [transcript]
+    }).catch(() => {});
+}
+
+const ticketEmbed = new EmbedBuilder()
+    .setTitle('🎫 Support System ')
+    .setDescription(`Ticket closed by <@${user.id}>.`)
+    .setColor('#e00000')
+    .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
+    .setTimestamp();
+
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('delete_ticket')
+                .setLabel('🗑️ Delete')
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId('reopen_ticket')
+                .setLabel('🔓 Back')
+                .setStyle(ButtonStyle.Success),
+        );
 
             await interaction.update({ embeds: [ticketEmbed], components: [row] });
 
