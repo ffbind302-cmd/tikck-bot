@@ -231,11 +231,18 @@ const updateTimer = async () => {
 
 <@&${staffRole}> will reply shortly.
 `);
-
+try {
     await ticketMessage.edit({
         embeds: [ticketEmbed],
         components: [row]
-    }).catch(() => clearInterval(timer));
+    });
+} catch (err) {
+    clearInterval(timer);
+    ticketTimers.delete(channel.id);
+} 
+updateTimer();
+
+
 };
       updateTimer();
     const timer = setInterval(updateTimer, 1000);
@@ -361,7 +368,13 @@ ticketTimers.set(channel.id, timer);
 }
 
 else if (button == "close_ticket") {
+     
+    const timer = ticketTimers.get(interaction.channel.id);
 
+if (timer) {
+    clearInterval(timer);
+    ticketTimers.delete(interaction.channel.id);
+}
     const isStaff = interaction.member.roles.cache.has(staffRole);
     const isOwner = interaction.guild.ownerId === interaction.user.id;
 
@@ -395,17 +408,7 @@ else if (button == "close_ticket") {
 
 } else if (button == 'confirm_close_ticket') {
 
-    const channel = interaction.channel;
-
-    // Timer Stop
-    const timer = ticketTimers.get(channel.id);
-
-    if (timer) {
-        clearInterval(timer);
-        ticketTimers.delete(channel.id);
-    }
-
-    const html = await buildTranscript(channel);
+   const html = await buildTranscript(channel);
 
     const transcript = new AttachmentBuilder(
         Buffer.from(html, "utf8"),
