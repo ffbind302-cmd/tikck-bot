@@ -82,10 +82,28 @@ setInterval(async () => {
             if (user) {
 
                 const embed = new EmbedBuilder()
-                    .setColor("#5865F2")
-                    .setTitle("⏰ Ticket Automatically Closed")
-                    .setDescription("Your ticket has been automatically closed after 48 hours.\n\nYour HTML transcript is attached below.")
-                    .setTimestamp();
+    .setColor("#5865F2")
+    .setTitle("⏰ Ticket Automatically Closed")
+    .setThumbnail(guild.iconURL({ dynamic: true }))
+    .setDescription(`
+Hello **${user.username}**,
+
+Your support ticket has been automatically closed after **48 hours** due to inactivity.
+
+### Ticket Information
+👤 Customer: <@${ticket.userId}>
+🏷 Ticket: ${channel.name}
+🏠 Server: ${guild.name}
+
+📄 Your complete HTML transcript is attached below.
+
+Thank you for choosing **${guild.name}**.
+`)
+    .setFooter({
+        text: guild.name,
+        iconURL: guild.iconURL({ dynamic: true })
+    })
+    .setTimestamp();
 
                 await user.send({
                     embeds: [embed],
