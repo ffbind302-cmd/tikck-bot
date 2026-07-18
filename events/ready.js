@@ -1,11 +1,14 @@
 const { ActivityType } = require('discord.js');
 const RPC = require('discord-rpc');
-
+const fs = require("fs");
+const { AttachmentBuilder, EmbedBuilder } = require("discord.js");
+const buildTranscript = require("../transcriptGenerator");
 module.exports = {
     name: 'ready',
     once: true,
 
     async execute(client) {
+        const AUTO_DELETE_TIME = 1 * 60 * 1000; // 1 Minute
         console.log(`[EVENT] Logged in as ${client.user.tag}`);
 
         // Discord RPC başlatma
@@ -30,6 +33,8 @@ module.exports = {
 
         // Discord'da botun mevcut durumunu ayarlama
         client.user.setPresence({
+
+            
             activities: [
                 { 
                     name: 'ROMAN XP CHEAT',
@@ -38,5 +43,68 @@ module.exports = {
             ],
             status: 'idle' // Botun durumu (idle, online, dnd, invisible)
         });
+        
+
+
+        const ticketsFile = "./database/tickets.json";
+
+setInterval(async () => {
+
+    if (!fs.existsSync(ticketsFile)) return;
+
+    let tickets = JSON.parse(fs.readFileSync(ticketsFile, "utf8"));
+
+    for (const ticket of [...tickets]) {
+
+        if (Date.now() - ticket.createdAt < AUTO_DELETE_TIME)
+    continue;
+           
+
+        try {
+
+            const guild = client.guilds.cache.get(ticket.guildId);
+            if (!guild) continue;
+
+            const channel = guild.channels.cache.get(ticket.channelId);
+            if (!channel) continue;
+
+            const html = await buildTranscript(channel);
+
+            const transcript = new AttachmentBuilder(
+                Buffer.from(html, "utf8"),
+                {
+                    name: `transcript-${channel.name}.html`
+                }
+            );
+
+            const user = await client.users.fetch(ticket.userId).catch(() => null);
+
+            if (user) {
+
+                const embed = new EmbedBuilder()
+                    .setColor("#5865F2")
+                    .setTitle("⏰ Ticket Automatically Closed")
+                    .setDescription("Your ticket has been automatically closed after 48 hours.\n\nYour HTML transcript is attached below.")
+                    .setTimestamp();
+
+                await user.send({
+                    embeds: [embed],
+                    files: [transcript]
+                }).catch(() => {});
+            }
+
+            await channel.delete().catch(() => {});
+
+            tickets = tickets.filter(t => t.channelId !== ticket.channelId);
+
+            fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
+
+        } catch (err) {
+            console.log(err);
+        }
+
+    }
+
+}, 10000);
     }
 };

@@ -156,6 +156,23 @@ if (interaction.isModalSubmit()) {
             }
         ]
     });
+     
+const ticketsFile = "./database/tickets.json";
+
+let tickets = [];
+
+if (fs.existsSync(ticketsFile)) {
+    tickets = JSON.parse(fs.readFileSync(ticketsFile, "utf8"));
+}
+
+tickets.push({
+    channelId: channel.id,
+    guildId: guild.id,
+    userId: user.id,
+    createdAt: Date.now()
+});
+
+fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
 
     const ticketEmbed = new EmbedBuilder()
         .setTitle("🛒 Purchase Ticket")
@@ -212,6 +229,23 @@ if (button === "create_ticket") {
             }
         ]
     });
+
+const ticketsFile = "./database/tickets.json";
+
+let tickets = [];
+
+if (fs.existsSync(ticketsFile)) {
+    tickets = JSON.parse(fs.readFileSync(ticketsFile, "utf8"));
+}
+
+tickets.push({
+    channelId: channel.id,
+    guildId: guild.id,
+    userId: user.id,
+    createdAt: Date.now()
+});
+
+fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
 
     const ticketEmbed = new EmbedBuilder()
         .setTitle("🎫 Support Ticket")
@@ -365,6 +399,17 @@ await channel.permissionOverwrites.edit(guild.id, {
     ViewChannel: false,
     SendMessages: false
 });
+const ticketsFile = "./database/tickets.json";
+
+if (fs.existsSync(ticketsFile)) {
+
+    let tickets = JSON.parse(fs.readFileSync(ticketsFile, "utf8"));
+
+    tickets = tickets.filter(t => t.channelId !== channel.id);
+
+    fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
+
+}
         } else if (button == 'delete_ticket') {
             const channel = interaction.channel;
 
@@ -420,6 +465,25 @@ Please tell us the reason for creating this ticket.
                 SendMessages: true,
                 ViewChannel: true
             });
+
+const ticketsFile = "./database/tickets.json";
+
+let tickets = [];
+
+if (fs.existsSync(ticketsFile)) {
+    tickets = JSON.parse(fs.readFileSync(ticketsFile, "utf8"));
+}
+
+tickets.push({
+    channelId: channel.id,
+    guildId: guild.id,
+    userId: userid,
+    createdAt: Date.now()
+});
+
+fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
+
+
             await interaction.update({ embeds: [ticketEmbed], components: [row] });
         } else if (button == 'transcript_ticket') {
             const channel = interaction.channel;
