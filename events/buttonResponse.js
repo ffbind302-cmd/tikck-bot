@@ -194,11 +194,51 @@ fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
             .setStyle(ButtonStyle.Danger)
     );
 
-    await channel.send({
-        embeds: [ticketEmbed],
-        components: [row]
-    });
+   const ticketMessage = await channel.send({
+    embeds: [ticketEmbed],
+    components: [row]
+});
+const AUTO_DELETE_TIME = 48 * 60 * 60 * 1000;
+const createdAt = Date.now();
 
+const timer = setInterval(async () => {
+
+    const remaining = AUTO_DELETE_TIME - (Date.now() - createdAt);
+
+    if (remaining <= 0) {
+    clearInterval(timer);
+    return;
+}
+
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+
+    ticketEmbed.setDescription(`
+👋 Hello <@${user.id}>
+
+**Product:** ${purchase.product}
+**Payment:** ${purchase.payment}
+**Duration:** ${purchase.duration}
+
+━━━━━━━━━━━━━━
+
+⏰ Auto Close Timer
+
+**${hours}h ${minutes}m Remaining**
+
+━━━━━━━━━━━━━━
+
+<@&${staffRole}> will reply shortly.
+`);
+
+   await ticketMessage.edit({
+    embeds: [ticketEmbed],
+    components: [row]
+}).catch(() => {
+    clearInterval(timer);
+});
+
+}, 60000);
     return interaction.reply({
     content: `✅ Your purchase ticket was created: ${channel}`,
     ephemeral: true
@@ -265,10 +305,49 @@ Please write the reason for opening this ticket.
             .setStyle(ButtonStyle.Danger)
     );
 
-    await channel.send({
-        embeds: [ticketEmbed],
-        components: [row]
-    });
+   const ticketMessage = await channel.send({
+    embeds: [ticketEmbed],
+    components: [row]
+});
+
+const AUTO_DELETE_TIME = 48 * 60 * 60 * 1000;
+const createdAt = Date.now();
+
+const timer = setInterval(async () => {
+
+    const remaining = AUTO_DELETE_TIME - (Date.now() - createdAt);
+
+    if (remaining <= 0) {
+    clearInterval(timer);
+    return;
+}
+
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+
+    ticketEmbed.setDescription(`
+👋 Hello <@${user.id}>
+
+Please write the reason for opening this ticket.
+
+━━━━━━━━━━━━━━
+
+⏰ Auto Close Timer
+
+**${hours}h ${minutes}m Remaining**
+
+━━━━━━━━━━━━━━
+
+<@&${staffRole}> will reply shortly.
+`);
+
+    await ticketMessage.edit({
+    embeds: [ticketEmbed],
+    components: [row]
+}).catch(() => {
+    clearInterval(timer);
+});
+}, 60000);
 
     return interaction.reply({
         content: `✅ Your support ticket was created: ${channel}`,

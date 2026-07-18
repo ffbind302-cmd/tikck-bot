@@ -8,7 +8,7 @@ module.exports = {
     once: true,
 
     async execute(client) {
-        const AUTO_DELETE_TIME = 1 * 60 * 1000; // 1 Minute
+        const AUTO_DELETE_TIME = 48 * 60 * 60 * 1000; // 48 Hours
         console.log(`[EVENT] Logged in as ${client.user.tag}`);
 
         // Discord RPC başlatma
@@ -123,6 +123,6 @@ Thank you for choosing **${guild.name}**.
 
     }
 
-}, 10000);
+}, 60000);
     }
 };
