@@ -240,7 +240,7 @@ try {
     clearInterval(timer);
     ticketTimers.delete(channel.id);
 } 
-updateTimer();
+
 
 
 };
@@ -368,7 +368,8 @@ ticketTimers.set(channel.id, timer);
 }
 
 else if (button == "close_ticket") {
-     
+      console.log("Close Ticket Clicked");
+
     const timer = ticketTimers.get(interaction.channel.id);
 
 if (timer) {
@@ -403,12 +404,14 @@ if (timer) {
                         .setLabel('❌ No')
                         .setStyle(ButtonStyle.Danger)
                 );
-                
+                 console.log("Updating interaction...");
         await interaction.update({ embeds: [ticketEmbed], components: [row] });
 
 } else if (button == 'confirm_close_ticket') {
 
-   const html = await buildTranscript(channel);
+    const channel = interaction.channel;
+
+    const html = await buildTranscript(channel);
 
     const transcript = new AttachmentBuilder(
         Buffer.from(html, "utf8"),
@@ -416,11 +419,11 @@ if (timer) {
             name: `transcript-${channel.name}.html`
         }
     );
+
     const username = channel.topic.split(" ")[0];
     const userId = channel.topic.split(" ")[1];
 
     const ticketOwner = await client.users.fetch(userId).catch(() => null);
-
     if (ticketOwner) {
         const dmEmbed = new EmbedBuilder()
     .setColor("#5865F2")
