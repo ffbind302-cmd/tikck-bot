@@ -204,7 +204,7 @@ if (button === "create_ticket") {
             },
             {
                 id: user.id,
-                allow: PermissionFlagsBits.ViewChann
+                allow: PermissionFlagsBits.ViewChannel
             },
             {
                 id: staffRole,
@@ -295,31 +295,76 @@ else if (button == "close_ticket") {
     const ticketOwner = await client.users.fetch(userId).catch(() => null);
 
     if (ticketOwner) {
-        await ticketOwner.send({
-            content: "✅ Your ticket has been closed.\n📄 HTML Transcript is attached below.",
-            files: [transcript]
-        }).catch(console.error);
+        const dmEmbed = new EmbedBuilder()
+    .setColor("#5865F2")
+    .setTitle("🎫 Ticket Closed Successfully")
+    .setThumbnail(guild.iconURL({ dynamic: true }))
+    .setDescription(`
+Hello **${username}**,
+
+Your support ticket has been successfully resolved by our staff.
+
+### Ticket Information
+👤 Customer: <@${userId}>
+🏷 Ticket: ${channel.name}
+🏠 Server: ${guild.name}
+
+📄 Your complete HTML transcript is attached below.
+
+Thank you for choosing **${guild.name}**.
+`)
+    .setFooter({
+        text: guild.name,
+        iconURL: guild.iconURL({ dynamic: true })
+    })
+    .setTimestamp();
+
+await ticketOwner.send({
+    embeds: [dmEmbed],
+    files: [transcript]
+}).catch(console.error);
     }
 
     const ticketEmbed = new EmbedBuilder()
-        .setTitle("🎫 Support System")
-        .setDescription(`Ticket closed by <@${user.id}>.`)
-        .setColor("#e00000")
-        .setFooter({
-            text: client.user.username,
-            iconURL: client.user.avatarURL({ dynamic: true })
-        })
-        .setTimestamp();
+    .setTitle("🔒 Ticket Closed")
+    .setDescription(`
+Ticket has been closed by <@${user.id}>.
 
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('close_ticket')
-                        .setLabel('📩 Close Ticket')
-                        .setStyle(ButtonStyle.Danger)
-                );
+🗑️ You can now delete this ticket
+or reopen it if needed.
+`)
+    .setColor("#e00000")
+    .setFooter({
+        text: client.user.username,
+        iconURL: client.user.avatarURL({ dynamic: true })
+    })
+    .setTimestamp();
 
-            await interaction.update({ embeds: [ticketEmbed], components: [row] });
+const row = new ActionRowBuilder().addComponents(
+
+    new ButtonBuilder()
+        .setCustomId("delete_ticket")
+        .setLabel("🗑 Delete Ticket")
+        .setStyle(ButtonStyle.Danger),
+
+    new ButtonBuilder()
+        .setCustomId("reopen_ticket")
+        .setLabel("🔓 Reopen Ticket")
+        .setStyle(ButtonStyle.Success)
+);
+
+await interaction.update({
+    embeds: [ticketEmbed],
+    components: [row]
+});
+
+await channel.setParent(closeCategory);
+await channel.setName(`closed-${username}`);
+
+await channel.permissionOverwrites.edit(guild.id, {
+    ViewChannel: false,
+    SendMessages: false
+});
         } else if (button == 'delete_ticket') {
             const channel = interaction.channel;
 
@@ -344,7 +389,7 @@ else if (button == "close_ticket") {
     .setDescription(`
 👋 Hello <@${user.id}>
 
-Welcome to **BYPASS Support**!
+Welcome to **Team Support**!
 
 Please tell us the reason for creating this ticket.
 
