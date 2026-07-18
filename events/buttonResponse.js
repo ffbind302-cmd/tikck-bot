@@ -201,17 +201,18 @@ fs.writeFileSync(ticketsFile, JSON.stringify(tickets, null, 2));
 const AUTO_DELETE_TIME = 48 * 60 * 60 * 1000;
 const createdAt = Date.now();
 
-const timer = setInterval(async () => {
+const updateTimer = async () => {
 
     const remaining = AUTO_DELETE_TIME - (Date.now() - createdAt);
 
     if (remaining <= 0) {
-    clearInterval(timer);
-    return;
-}
+        clearInterval(timer);
+        return;
+    }
 
     const hours = Math.floor(remaining / (1000 * 60 * 60));
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
     ticketEmbed.setDescription(`
 👋 Hello <@${user.id}>
@@ -224,21 +225,20 @@ const timer = setInterval(async () => {
 
 ⏰ Auto Close Timer
 
-**${hours}h ${minutes}m Remaining**
+**${hours}h ${minutes}m ${seconds}s Remaining**
 
 ━━━━━━━━━━━━━━
 
 <@&${staffRole}> will reply shortly.
 `);
 
-   await ticketMessage.edit({
-    embeds: [ticketEmbed],
-    components: [row]
-}).catch(() => {
-    clearInterval(timer);
-});
-
-}, 60000);
+    await ticketMessage.edit({
+        embeds: [ticketEmbed],
+        components: [row]
+    }).catch(() => clearInterval(timer));
+};
+      updateTimer();
+    const timer = setInterval(updateTimer, 1000);
     return interaction.reply({
     content: `✅ Your purchase ticket was created: ${channel}`,
     ephemeral: true
@@ -313,17 +313,18 @@ Please write the reason for opening this ticket.
 const AUTO_DELETE_TIME = 48 * 60 * 60 * 1000;
 const createdAt = Date.now();
 
-const timer = setInterval(async () => {
+const updateTimer = async () => {
 
     const remaining = AUTO_DELETE_TIME - (Date.now() - createdAt);
 
     if (remaining <= 0) {
-    clearInterval(timer);
-    return;
-}
+        clearInterval(timer);
+        return;
+    }
 
     const hours = Math.floor(remaining / (1000 * 60 * 60));
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
     ticketEmbed.setDescription(`
 👋 Hello <@${user.id}>
@@ -334,7 +335,7 @@ Please write the reason for opening this ticket.
 
 ⏰ Auto Close Timer
 
-**${hours}h ${minutes}m Remaining**
+**${hours}h ${minutes}m ${seconds}s Remaining**
 
 ━━━━━━━━━━━━━━
 
@@ -342,13 +343,14 @@ Please write the reason for opening this ticket.
 `);
 
     await ticketMessage.edit({
-    embeds: [ticketEmbed],
-    components: [row]
-}).catch(() => {
-    clearInterval(timer);
-});
-}, 60000);
+        embeds: [ticketEmbed],
+        components: [row]
+    }).catch(() => clearInterval(timer));
+};
 
+updateTimer();
+
+const timer = setInterval(updateTimer, 1000);
     return interaction.reply({
         content: `✅ Your support ticket was created: ${channel}`,
         ephemeral: true
