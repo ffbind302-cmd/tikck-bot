@@ -204,7 +204,7 @@ if (button === "create_ticket") {
             },
             {
                 id: user.id,
-                allow: PermissionFlagsBits.ViewChann
+                allow: PermissionFlagsBits.ViewChannel
             },
             {
                 id: staffRole,
@@ -242,6 +242,7 @@ Please write the reason for opening this ticket.
     });
 
 }
+ 
 
 else if (button == "close_ticket") {
 
@@ -255,95 +256,128 @@ else if (button == "close_ticket") {
             ephemeral: true
         });
     }
-            const ticketEmbed = new EmbedBuilder()
-                .setTitle('🎫 Support System')
-                .setDescription(`Hello <@${user.id}>, Are you sure you want to close this ticket?`)
-                .setColor('#e00000')
-                .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
-                .setTimestamp();
 
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('confirm_close_ticket')
-                        .setLabel('✅  Yes')  // Son tırnak işareti eklendi.
-                        .setStyle(ButtonStyle.Success),
-                    new ButtonBuilder()
-                        .setCustomId('cancel_close_ticket')
-                        .setLabel('❌ No')
-                        .setStyle(ButtonStyle.Danger)
-                );
-                
-        await interaction.update({ embeds: [ticketEmbed], components: [row] });
+    const ticketEmbed = new EmbedBuilder()
+        .setTitle("🎫 Support System")
+        .setDescription(`Hello <@${user.id}>, Are you sure you want to close this ticket?`)
+        .setColor("#e00000")
+        .setFooter({
+            text: client.user.username,
+            iconURL: client.user.displayAvatarURL()
+        })
+        .setTimestamp();
 
-} else if (button == 'confirm_close_ticket') {
-    await interaction.deferUpdate();
-    const channel = interaction.channel;
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId("confirm_close_ticket")
+            .setLabel("✅ Yes")
+            .setStyle(ButtonStyle.Success),
 
-    console.log("Closing ticket...");
+        new ButtonBuilder()
+            .setCustomId("cancel_close_ticket")
+            .setLabel("❌ No")
+            .setStyle(ButtonStyle.Danger)
+    );
 
-    const html = await buildTranscript(channel);
+    return interaction.update({
+        embeds: [ticketEmbed],
+        components: [row]
+    });
 
-    const fileName = `${channel.id}.html`;
+}
 
-    const filePath = path.join(__dirname, "..", "transcripts", fileName);
 
-    fs.writeFileSync(filePath, html);
+ else if (button == 'confirm_close_ticket') {
 
-    console.log("Transcript saved:", filePath);
+    try {
 
-    const transcriptURL = `https://tikck-bot-production.up.railway.app/transcripts/${fileName}`;
+        await interaction.deferUpdate();
 
-    const username = channel.topic.split(' ')[0];
-    const userId = channel.topic.split(' ')[1];
+        const channel = interaction.channel;
 
-    const ticketOwner = await client.users.fetch(userId).catch(() => null);
+        console.log("Step 1 - Closing Ticket");
+       console.log("Transcript Start");
+        const html = await buildTranscript(channel);
+        console.log("Transcript Done");
 
-    if (ticketOwner) {
+        console.log("Step 2 - Transcript Generated");
 
-        const dmRow = new ActionRowBuilder().addComponents(
+        const fileName = `${channel.id}.html`;
+        const filePath = path.join(__dirname, "..", "transcripts", fileName);
+
+        fs.writeFileSync(filePath, html);
+
+        console.log("Step 3 - Transcript Saved:", filePath);
+
+        const transcriptURL = `https://tikck-bot-production.up.railway.app/transcripts/${fileName}`;
+
+        const username = channel.topic.split(" ")[0];
+        const userId = channel.topic.split(" ")[1];
+
+        const ticketOwner = await client.users.fetch(userId).catch(err => {
+            console.log("User Fetch Error:", err);
+            return null;
+        });
+
+        if (ticketOwner) {
+
+            const dmRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setLabel("📄 View Transcript")
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(transcriptURL)
+            );
+
+            await ticketOwner.send({
+                content: "✅ Your ticket has been closed.\nClick the button below to view your transcript.",
+                components: [dmRow]
+            }).catch(err => console.log("DM Error:", err));
+
+        }
+
+        const ticketEmbed = new EmbedBuilder()
+            .setTitle("🎫 Support System")
+            .setDescription(`Ticket closed by <@${user.id}>.`)
+            .setColor("#e00000")
+            .setFooter({
+                text: client.user.username,
+                iconURL: client.user.displayAvatarURL()
+            })
+            .setTimestamp();
+
+        const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setLabel("📄 View Transcript")
-                .setStyle(ButtonStyle.Link)
-                .setURL(transcriptURL)
-        );
-
-        await ticketOwner.send({
-            content: "✅ Your ticket has been closed.\nClick the button below to view your transcript.",
-            components: [dmRow]
-        }).catch(() => {});
-    }
-const ticketEmbed = new EmbedBuilder()
-    .setTitle('🎫 Support System ')
-    .setDescription(`Ticket closed by <@${user.id}>.`)
-    .setColor('#e00000')
-    .setFooter({ text: client.user.username, iconURL: client.user.avatarURL({ dynamic: true }) })
-    .setTimestamp();
-
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('delete_ticket')
-                .setLabel('🗑️ Delete')
+                .setCustomId("delete_ticket")
+                .setLabel("🗑️ Delete")
                 .setStyle(ButtonStyle.Danger),
+
             new ButtonBuilder()
-                .setCustomId('reopen_ticket')
-                .setLabel('🔓 Back')
-                .setStyle(ButtonStyle.Success),
+                .setCustomId("reopen_ticket")
+                .setLabel("🔓 Back")
+                .setStyle(ButtonStyle.Success)
         );
 
-           await interaction.editReply({
+        await channel.setParent(closeCategory);
+        await channel.setName(`closed-${username}`);
+
+        await channel.permissionOverwrites.edit(guild.id, {
+            SendMessages: false,
+            ViewChannel: false
+        });
+
+       await interaction.message.edit({
     embeds: [ticketEmbed],
     components: [row]
 });
-            await channel.setParent(closeCategory);
-            await channel.setName(`closed-${username}`);
-            await channel.setParent(closeCategory);
-            await channel.permissionOverwrites.edit(guild.id, {
-                SendMessages: false,
-                ViewChannel: false
-            });
-        } else if (button == 'cancel_close_ticket') {
+
+        console.log("Step 4 - Finished");
+
+        } catch (err) {
+        console.error("========== ERROR ==========");
+        console.error(err);
+    }
+
+} else if (button == "cancel_close_ticket") {
             const channel = interaction.channel;
             const userid = channel.topic.split(' ')[1];
 
