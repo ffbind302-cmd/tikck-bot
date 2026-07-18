@@ -14,7 +14,7 @@ const {
 const fs = require('fs');
 const path = require("path");
 const buildTranscript = require('../transcriptGenerator');
-
+const ticketTimers = new Map();
 module.exports = {
     name: 'interactionCreate',
     once: false,
@@ -239,6 +239,7 @@ const updateTimer = async () => {
 };
       updateTimer();
     const timer = setInterval(updateTimer, 1000);
+    ticketTimers.set(channel.id, timer);
     return interaction.reply({
     content: `✅ Your purchase ticket was created: ${channel}`,
     ephemeral: true
@@ -351,6 +352,7 @@ Please write the reason for opening this ticket.
 updateTimer();
 
 const timer = setInterval(updateTimer, 1000);
+ticketTimers.set(channel.id, timer);
     return interaction.reply({
         content: `✅ Your support ticket was created: ${channel}`,
         ephemeral: true
@@ -395,6 +397,14 @@ else if (button == "close_ticket") {
 
     const channel = interaction.channel;
 
+    // Timer Stop
+    const timer = ticketTimers.get(channel.id);
+
+    if (timer) {
+        clearInterval(timer);
+        ticketTimers.delete(channel.id);
+    }
+
     const html = await buildTranscript(channel);
 
     const transcript = new AttachmentBuilder(
@@ -403,7 +413,6 @@ else if (button == "close_ticket") {
             name: `transcript-${channel.name}.html`
         }
     );
-
     const username = channel.topic.split(" ")[0];
     const userId = channel.topic.split(" ")[1];
 
