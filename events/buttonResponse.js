@@ -277,7 +277,7 @@ else if (button == "close_ticket") {
         await interaction.update({ embeds: [ticketEmbed], components: [row] });
 
 } else if (button == 'confirm_close_ticket') {
-
+    await interaction.deferUpdate();
     const channel = interaction.channel;
 
     console.log("Closing ticket...");
@@ -332,8 +332,10 @@ const ticketEmbed = new EmbedBuilder()
                 .setStyle(ButtonStyle.Success),
         );
 
-            await interaction.update({ embeds: [ticketEmbed], components: [row] });
-
+           await interaction.editReply({
+    embeds: [ticketEmbed],
+    components: [row]
+});
             await channel.setParent(closeCategory);
             await channel.setName(`closed-${username}`);
             await channel.setParent(closeCategory);
