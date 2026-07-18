@@ -14,7 +14,7 @@ module.exports = {
         rpc.on('ready', () => {
             // Burada botunuzun Discord RPC içeriğini ayarlıyorsunuz
             rpc.setActivity({
-                details: 'P4K X CHEATS TICKET SYSTEM', // Discord'da görünen açıklama
+                details: 'ROMAN XP CHEAT TICKET SYSTEM', // Discord'da görünen açıklama
                 state: 'Helping users!',    // Discord'da görünen durum
                 startTimestamp: new Date(),
                 largeImageKey: 'bot_logo',      // Discord uygulamanızdaki büyük resim anahtarı
@@ -32,7 +32,7 @@ module.exports = {
         client.user.setPresence({
             activities: [
                 { 
-                    name: 'P4K X CHEATS',
+                    name: 'ROMAN XP CHEAT',
                     type: ActivityType.Watching // Oyun durumu (Watching, Playing, etc.)
                 }
             ],
