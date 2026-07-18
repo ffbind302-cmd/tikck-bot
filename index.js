@@ -1,4 +1,3 @@
-require("./webserver");
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { token } = require('./config.json');
 const { DeployCommands } = require('./deploy-commands');
